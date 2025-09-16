@@ -52,6 +52,7 @@
 const float SERVO_PER = 20.0f;
 const float SERVO_MIN = 1.0f;
 const float SERVO_MAX = 2.0f;
+const uint16_t SPI_BUFFER_SIZE = 3;
 
 /* USER CODE END PV */
 
@@ -100,11 +101,13 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
+  uint8_t tx[3] = {0b00000001, 0b10000000, 0x00};
+  uint8_t rx[3] = {0};
+  uint16_t adc_value = 0;
+
   if (HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1) != HAL_OK) {
       Error_Handler();
   }
-
-  HAL_GPIO_WritePin(ADC_CS_GPIO_Port, ADC_CS_Pin, GPIO_PIN_SET);
 
   /* USER CODE END 2 */
 
@@ -112,13 +115,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  uint8_t tx[3] = {0b00000001, 0b10000000, 0x00};
-	  uint8_t rx[3] = {0};
-	  uint16_t adc_value = 0;
-
 	  HAL_GPIO_WritePin(ADC_CS_GPIO_Port, ADC_CS_Pin, GPIO_PIN_RESET);
 
-	  if (HAL_SPI_TransmitReceive(&hspi1, tx, rx, 3, HAL_MAX_DELAY) != HAL_OK) {
+	  if (HAL_SPI_TransmitReceive(&hspi1, tx, rx, SPI_BUFFER_SIZE, HAL_MAX_DELAY) != HAL_OK) {
 		  HAL_GPIO_WritePin(ADC_CS_GPIO_Port, ADC_CS_Pin, GPIO_PIN_SET);
 		  continue;
 	  }
